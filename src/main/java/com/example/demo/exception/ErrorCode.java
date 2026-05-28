@@ -14,7 +14,8 @@ public enum ErrorCode {
     POST_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 존재하는 게시글"),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND,"가입되지 않은 이메일입니다"),
-    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED,"비밀번호가 일치하지 않습니다");
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED,"비밀번호가 일치하지 않습니다"),
+    USER_ALREADY_EXISTS(HttpStatus.CONFLICT,"이미 가입된 이메일입니다");
 
     private final HttpStatus status;
     private final String message;

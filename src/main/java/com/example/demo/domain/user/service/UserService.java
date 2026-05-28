@@ -7,25 +7,31 @@ import com.example.demo.domain.user.entity.User;
 import com.example.demo.domain.user.repository.UserRepository;
 import com.example.demo.exception.BusinessException;
 import com.example.demo.exception.ErrorCode;
+import com.example.demo.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-
+    private final JwtTokenProvider jwtTokenProvider;
+    @Transactional
     public UserResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS);
         }
         String encodedPassword = passwordEncoder.encode(request.password());
         User user = User.create(request.email(), encodedPassword);
         userRepository.save(user);
-        return UserResponse.from(user);
+        String token = jwtTokenProvider.createToken(user.getId(), user.getEmail());
+        return UserResponse.from(user, token);
     }
 
     public UserResponse login(LoginRequest request) {
@@ -36,6 +42,7 @@ public class UserService {
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
-        return UserResponse.from(user);
+        String token = jwtTokenProvider.createToken(user.getId(), user.getEmail());
+        return UserResponse.from(user, token);
     }
 }
