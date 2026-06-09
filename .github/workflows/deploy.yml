@@ -21,9 +21,9 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: 0000
-          MYSQL_DATABASE: mydb
-          MYSQL_PASSWORD: 0000
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
+          MYSQL_DATABASE: board
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -50,8 +50,10 @@ jobs:
       - name: 테스트 실행
         run: ./gradlew test
         env:
-          DB_URL: jdbc:mysql://localhost:3306/mydb
-          DB_PASSWORD: 0000
+          DB_URL: jdbc:mysql://localhost:3306/board?useSSL=false&serverTimezone=Asia/Seoul
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
   # ─────────────────────────────────────
   # JOB 2: 빌드 & 이미지 push
@@ -133,4 +135,4 @@ jobs:
             # 최신 이미지 pull & 재시작
             docker-compose pull
             docker-compose up -d --remove-orphans
-            docker image prune -fgit add .
+            docker image prune -f
