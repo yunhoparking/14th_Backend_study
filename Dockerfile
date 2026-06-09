@@ -1,7 +1,7 @@
 # Dockerfile (Spring Boot 예시)
 FROM eclipse-temurin:21-jdk-alpine AS builder
 WORKDIR /app
-COPY . .
+COPY src .
 RUN ./gradlew build -x test
 
 FROM eclipse-temurin:21-jre-alpine
